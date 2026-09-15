@@ -7,5 +7,9 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     setupFiles: "./src/test/setup.ts",
+    isolate: true,
+    sequence: {
+      hooks: "list",
+    },
   },
 });
