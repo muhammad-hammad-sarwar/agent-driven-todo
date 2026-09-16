@@ -82,4 +82,70 @@ describe("Todo", () => {
     expect(screen.getByText("First todo")).toBeInTheDocument();
     expect(screen.getByText("Second todo")).toBeInTheDocument();
   });
+
+  it("marks a todo as completed when checkbox is checked", () => {
+    render(<Todo />);
+    const input = screen.getByPlaceholderText("Enter a todo...");
+    const button = screen.getByText("Add");
+
+    fireEvent.change(input, { target: { value: "Buy groceries" } });
+    fireEvent.click(button);
+
+    const checkbox = screen.getByRole("checkbox");
+    expect(checkbox).not.toBeChecked();
+
+    const todoText = screen.getByText("Buy groceries");
+    expect(todoText).toHaveStyle({ textDecoration: "none" });
+
+    fireEvent.click(checkbox);
+
+    expect(checkbox).toBeChecked();
+    expect(todoText).toHaveStyle({ textDecoration: "line-through" });
+  });
+
+  it("toggles a completed todo back to incomplete", () => {
+    render(<Todo />);
+    const input = screen.getByPlaceholderText("Enter a todo...");
+    const button = screen.getByText("Add");
+
+    fireEvent.change(input, { target: { value: "Walk the dog" } });
+    fireEvent.click(button);
+
+    const checkbox = screen.getByRole("checkbox");
+    const todoText = screen.getByText("Walk the dog");
+
+    // Complete the todo
+    fireEvent.click(checkbox);
+    expect(checkbox).toBeChecked();
+    expect(todoText).toHaveStyle({ textDecoration: "line-through" });
+
+    // Mark as incomplete
+    fireEvent.click(checkbox);
+    expect(checkbox).not.toBeChecked();
+    expect(todoText).toHaveStyle({ textDecoration: "none" });
+  });
+
+  it("independently toggles completion state for multiple todos", () => {
+    render(<Todo />);
+    const input = screen.getByPlaceholderText("Enter a todo...");
+    const button = screen.getByText("Add");
+
+    fireEvent.change(input, { target: { value: "First task" } });
+    fireEvent.click(button);
+
+    fireEvent.change(input, { target: { value: "Second task" } });
+    fireEvent.click(button);
+
+    const checkboxes = screen.getAllByRole("checkbox");
+    expect(checkboxes).toHaveLength(2);
+
+    // Toggle only the first todo
+    fireEvent.click(checkboxes[0]);
+
+    expect(checkboxes[0]).toBeChecked();
+    expect(checkboxes[1]).not.toBeChecked();
+
+    expect(screen.getByText("First task")).toHaveStyle({ textDecoration: "line-through" });
+    expect(screen.getByText("Second task")).toHaveStyle({ textDecoration: "none" });
+  });
 });

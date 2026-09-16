@@ -3,6 +3,7 @@ import { useState } from "react";
 interface Todo {
   id: number;
   title: string;
+  completed: boolean;
 }
 
 export function Todo() {
@@ -16,9 +17,17 @@ export function Todo() {
       return;
     }
 
-    setTodos((prev) => [...prev, { id: nextId, title: trimmedValue }]);
+    setTodos((prev) => [...prev, { id: nextId, title: trimmedValue, completed: false }]);
     setNextId((prev) => prev + 1);
     setInputValue("");
+  };
+
+  const handleToggleTodo = (id: number) => {
+    setTodos((prev) =>
+      prev.map((todo) =>
+        todo.id === id ? { ...todo, completed: !todo.completed } : todo
+      )
+    );
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -46,7 +55,20 @@ export function Todo() {
       </div>
       <ul>
         {todos.map((todo) => (
-          <li key={todo.id}>{todo.title}</li>
+          <li key={todo.id}>
+            <input
+              type="checkbox"
+              checked={todo.completed}
+              onChange={() => handleToggleTodo(todo.id)}
+            />
+            <span
+              style={{
+                textDecoration: todo.completed ? "line-through" : "none",
+              }}
+            >
+              {todo.title}
+            </span>
+          </li>
         ))}
       </ul>
     </div>
